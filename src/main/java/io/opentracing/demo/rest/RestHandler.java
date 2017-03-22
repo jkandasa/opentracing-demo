@@ -29,15 +29,13 @@ public class RestHandler {
     @GET
     @Path("/user/{userName}")
     public Response getEmail(@PathParam("userName") String userName, @Context UriInfo uriInfo) {
-
-        String user = getEmailFromDB(null, userName);
-
+        Span span = tracer.buildSpan("get_user_email").withTag("tag", "hello").start();
+        String user = getEmailFromDB(span.context(), userName);
+        span.finish();
         return Response.ok().entity(user).build();
     }
 
     private String getEmailFromDB(SpanContext parent, String userName) {
-
-
         if (parent != null) {
             waitRandom();
 
@@ -51,19 +49,22 @@ public class RestHandler {
              * ....
              */
 
-            waitRandom();
+            long waitTime = waitRandom();
+            //Adding wait time as a tag
+            dbProcessingSpan.setTag("waitTime", waitTime);
 
             dbProcessingSpan.finish();
         }
-
-        return "jdoe@jdoe.com";
+        return userName.replaceAll(" ", "_") + "@redhat.com";
     }
 
-    private void waitRandom() {
+    private long waitRandom() {
+        long waitTime = (int) (random.nextDouble() * 1000);
         try {
-            Thread.sleep((int)(random.nextDouble() * 1000));
+            Thread.sleep(waitTime);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        return waitTime;
     }
 }

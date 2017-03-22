@@ -10,7 +10,7 @@ import org.hawkular.apm.client.opentracing.DeploymentMetaData;
 import org.hawkular.apm.trace.publisher.rest.client.TracePublisherRESTClient;
 import org.springframework.stereotype.Component;
 
-import brave.features.opentracing.BraveTracer;
+//import brave.features.opentracing.BraveTracer;
 import io.opentracing.Tracer;
 import zipkin.Endpoint;
 import zipkin.Span;
@@ -32,13 +32,13 @@ public class JerseyConfig extends ResourceConfig {
     Tracer openTracingHakular() {
         BatchTraceRecorder traceRecorder = new BatchTraceRecorder.BatchTraceRecorderBuilder()
                 .withTracePublisher(
-                        new TracePublisherRESTClient("jdoe", "password","http://localhost:8080"))
+                        new TracePublisherRESTClient("admin", "password","http://localhost:8080"))
                 .build();
 
         return new APMTracer(traceRecorder, Sampler.ALWAYS_SAMPLE,
                 new DeploymentMetaData("opentracing-demo", "1"));
     }
-
+/*
     Tracer openTracingZipkin() {
         Reporter<Span> reporter = AsyncReporter.builder(
                     URLConnectionSender.create("http://localhost:9411/api/v1/spans"))
@@ -50,4 +50,5 @@ public class JerseyConfig extends ResourceConfig {
                 .reporter(reporter);
         return BraveTracer.wrap(builder.build());
     }
+    */
 }
